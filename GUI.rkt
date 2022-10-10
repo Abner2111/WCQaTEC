@@ -7,7 +7,7 @@
 
 ; Creates window frame
 (define frame (new frame%
-                   [label "Example"]
+                   [label "World Cup QaTec"]
                    [width 640]
                    [height 500]))
 
