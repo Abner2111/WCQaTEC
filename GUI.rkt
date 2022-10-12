@@ -80,7 +80,7 @@
     )
   )
 
-
+; Cambia las coordenadas para la animacion FALTA CONECTARLO CON LA INTERFAZ
 
 (define (animation player xNewPos yNewPos)
   ;(define xRec (~a player "x")) ; CR1x
@@ -98,8 +98,5 @@
     )
   )
 
-(define CRC1 (new player% (x 20) ( y 20)))
-(animation CRC1 40 40)
-(send CRC1 get-xpos)
 
 (send frame show #t)
