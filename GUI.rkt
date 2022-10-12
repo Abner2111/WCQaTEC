@@ -11,7 +11,7 @@
 (define CR2x 30)
 (define CR2y 30)
 
-(define playerList (list '("CR1" CR1x CR1y) '("CR2" CR2x CR2y)))
+;(define playerList (list '("CR1" CR1x CR1y) '("CR2" CR2x CR2y)))
 
 ; Creates window frame
 (define frame (new frame%
@@ -66,30 +66,40 @@
     (define/public (get-aim) aim)
     (define/public (get-speed) speed)
     (define/public (get-block) block)
-    (define/public (get-ypos) yPos)
+
+    (define/public (set-xpos newX)
+      (set! xPos newX))
+    (define/public (set-ypos newY)
+      (set! yPos newY))
+    (define/public (set-aim newAim)
+      (set! aim newAim))
+    (define/public (set-speed newSpeed)
+      (set! speed newSpeed))
+    (define/public (set-block newBlock)
+      (set! block newBlock))
     )
   )
 
-(define CRC1 (new player% (x 10) (y 20)))
-(send CRC1 get-xpos)
-(send CRC1 get-ypos)
-#|
-(define (animation listPos xNewPos yNewPos)
+
+
+(define (animation player xNewPos yNewPos)
   ;(define xRec (~a player "x")) ; CR1x
   ;(define yRec (~a player "y")) ; CR1y
-  (define tempList (list-ref playerList (- listPos 1)))
+  ;(define tempList (list-ref playerList (- listPos 1)))
   (cond
-    ((and (>= (list-ref tempList 1)  xNewPos) (>= (list-ref tempList 2) yNewPos)) 0)
+    ((and (>= (send player get-xpos)  xNewPos) (>= (send player get-ypos) yNewPos)) 0)
     (else
-     (set! (eval (list-ref tempList 1)) (+ (eval (list-ref tempList 1)) 5))
-     (set! (eval (list-ref tempList 2)) (+ (eval (list-ref tempList 2)) 5))
-     (print (~a xRec "  " yRec))
+     (send player set-xpos (+ (send player get-xpos) 5))
+     (send player set-ypos (+ (send player get-ypos) 5))
      (sleep 0.1)
      (send canvas refresh-now)
-     (animation listPos xNewPos yNewPos)
+     (animation player xNewPos yNewPos)
+    )
     )
   )
-  )
-|#
+
+(define CRC1 (new player% (x 20) ( y 20)))
+(animation CRC1 40 40)
+(send CRC1 get-xpos)
 
 (send frame show #t)
