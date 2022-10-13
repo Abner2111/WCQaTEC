@@ -25,12 +25,13 @@
 
                 ; coloca la imagen
                 (send dc draw-bitmap(read-bitmap "Resources/field.jpg") 0 35 )
+                (send dc draw-bitmap(read-bitmap "Resources/CRC1.png") xRec yRec )
                 
                 ; coloca el texto del marcador
                 (send dc draw-text (~a "CRC  " scoreTeam1 " BRA  " scoreTeam2) 10 5)
 
                 ; dibuja un ractangulo de prueba
-                (send dc draw-rectangle xRec yRec 30 30)
+                ;(send dc draw-rectangle xRec yRec 30 30)
                 ;(send dc draw-rectangle CR1x CR1y 30 30)
                 ;(send dc draw-rectangle CR2x CR2y 30 30)
                 
@@ -129,7 +130,6 @@
     (else
      (send player set-xpos (+ (send player get-xpos) 5))
      (send player set-ypos (+ (send player get-ypos) 5))
-     ;(send player set-draw canvass)
      (set! xRec (send player get-xpos))
      (set! yRec (send player get-ypos))
      (sleep 0.1)
@@ -159,3 +159,6 @@
 ;(send jug2 get-ypos)
 
 (send frame show #t)
+
+ 
+
