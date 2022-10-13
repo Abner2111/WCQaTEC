@@ -40,7 +40,7 @@
              [label "prueba"]
              [callback (lambda (button event)
                          (set! scoreTeam1 (+ scoreTeam1 1))
-                         (animation CRC1 320 250)
+                         ;(animation CRC1 320 250)
                          (send canvas refresh-now)
                          )
                        ]
@@ -84,15 +84,10 @@
       (send dc draw-rectangle xPos yPos 30 30))
     )
   )
-<<<<<<< Updated upstream
-(define CRC1 (new player% (x 25) (y 25)))
-
-=======
-;;(define CRC1 (new player% (x 25) (y 25)))
-;;(define jug2 (new player% (x 8) (y 8)))
-;;(define jugadores (list CRC1 jug2))
-;;(define coords (list (list 100 100) (list 50 50)))
->>>>>>> Stashed changes
+;(define CRC1 (new player% (x 25) (y 25)))
+;(define jug2 (new player% (x 8) (y 8)))
+;(define jugadores (list CRC1 jug2))
+;(define coords (list (list 100 100) (list 50 50)))
 ; Cambia las coordenadas para la animacion FALTA CONECTARLO CON LA INTERFAZ
 (define (posiniciales listajugs listacoord canvas)
   (cond ((or (null? listacoord) (null? listajugs))
@@ -105,8 +100,7 @@
 
 ;;prueba
 ;;(print (car (car coords)))
-;;(posiniciales jugadores coords)
-;;(send (car jugadores) get-xpos)
+;(send (car jugadores) get-xpos)
 ;(send (car jugadores) get-ypos)
 ;(send jug2 get-xpos)
 ;(send jug2 get-ypos)
