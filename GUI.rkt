@@ -39,7 +39,8 @@
              [label "prueba"]
              [callback (lambda (button event)
                          (set! scoreTeam1 (+ scoreTeam1 1))
-                         ;(animation "CR1" 320 250)
+                         (animation CRC1 320 250)
+                         (send canvas refresh-now)
                          )
                        ]
              )
@@ -79,6 +80,7 @@
       (set! block newBlock))
     )
   )
+(define CRC1 (new player% (x 25) (y 25)))
 
 ; Cambia las coordenadas para la animacion FALTA CONECTARLO CON LA INTERFAZ
 
@@ -97,6 +99,10 @@
     )
     )
   )
+
+;(animation CRC1 200 500)
+;(send CRC1 get-xpos)
+;(send CRC1 get-ypos)
 
 
 (send frame show #t)
