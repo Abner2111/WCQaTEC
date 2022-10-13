@@ -29,6 +29,7 @@
                 (send dc draw-bitmap(read-bitmap "Resources/field.jpg") 0 35 )
                 (send dc draw-text (~a "CRC  " scoreTeam1 " BRA  " scoreTeam2) 10 5)
                 (send dc draw-rectangle xRec yRec 30 30)
+                ;(posiniciales jugadores coords dc)
                 )
               ]
              )
@@ -57,6 +58,7 @@
     (define aim 0)
     (define speed 0)
     (define block 0)
+    (define rectangulo 0) 
 
     (super-new)
 
@@ -78,11 +80,48 @@
       (set! speed newSpeed))
     (define/public (set-block newBlock)
       (set! block newBlock))
+    (define/public (set-draw dc)
+      (send dc draw-rectangle xPos yPos 30 30))
     )
   )
+<<<<<<< Updated upstream
 (define CRC1 (new player% (x 25) (y 25)))
 
+=======
+;;(define CRC1 (new player% (x 25) (y 25)))
+;;(define jug2 (new player% (x 8) (y 8)))
+;;(define jugadores (list CRC1 jug2))
+;;(define coords (list (list 100 100) (list 50 50)))
+>>>>>>> Stashed changes
 ; Cambia las coordenadas para la animacion FALTA CONECTARLO CON LA INTERFAZ
+(define (posiniciales listajugs listacoord canvas)
+  (cond ((or (null? listacoord) (null? listajugs))
+         '())
+        (else
+         (send (car listajugs) set-xpos (car (car listacoord)))
+         (send (car listajugs) set-ypos (car (cdr (car listacoord))))
+         (send (car listajugs) set-draw canvas)
+         (posiniciales (cdr listajugs) (cdr listacoord) canvas))))
+
+;;prueba
+;;(print (car (car coords)))
+;;(posiniciales jugadores coords)
+;;(send (car jugadores) get-xpos)
+;(send (car jugadores) get-ypos)
+;(send jug2 get-xpos)
+;(send jug2 get-ypos)
+
+;;Metodo para realizar animaciones de todos los jugadores
+(define (newpos listajugs listacoord)
+  (cond ((or (null? listacoord) (null? listajugs))
+         '())
+        (else
+         (animation (car listajugs) (car (car listacoord)) (car(cdr (car listacoord))))
+         (newpos (cdr listajugs) (cdr listacoord)))))
+        
+        
+  
+  
 
 (define (animation player xNewPos yNewPos)
   ;(define xRec (~a player "x")) ; CR1x
