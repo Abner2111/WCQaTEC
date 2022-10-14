@@ -1,18 +1,10 @@
 #lang racket/gui
 
 (require racket/gui/base)
-(require 2htdp/universe)
 
+; Se define las variables del marcador
 (define scoreTeam1 0)
 (define scoreTeam2 0)
-
-(define CR1x 320)
-(define CR1y 250)
-(define CR2x 320)
-(define CR2y 250)
-(define CR3x 320)
-(define CR3y 250)
-
 
 ; Creates window frame
 (define frame (new frame%
@@ -28,22 +20,45 @@
 
                 ; coloca la imagen
                 (send dc draw-bitmap(read-bitmap "Resources/field.jpg") 0 35 )
-                (send dc draw-bitmap(read-bitmap "Resources/CRC1.png") xRec yRec )
-                (send dc draw-bitmap(read-bitmap "Resources/CRC2.png") CR1x CR1y )
+                (send dc draw-bitmap(read-bitmap "Resources/CRC1.png") (send CRC1 get-xpos) (send CRC1 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC2.png") (send CRC2 get-xpos) (send CRC2 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC3.png") (send CRC3 get-xpos) (send CRC3 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC4.png") (send CRC4 get-xpos) (send CRC4 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC5.png") (send CRC5 get-xpos) (send CRC5 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC6.png") (send CRC6 get-xpos) (send CRC6 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC7.png") (send CRC7 get-xpos) (send CRC7 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC8.png") (send CRC8 get-xpos) (send CRC8 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC9.png") (send CRC9 get-xpos) (send CRC9 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC10.png") (send CRC10 get-xpos) (send CRC10 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/CRC11.png") (send CRC11 get-xpos) (send CRC11 get-ypos))
+
+                (send dc draw-bitmap(read-bitmap "Resources/BRA1.png") (send BRA1 get-xpos) (send BRA1 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA2.png") (send BRA2 get-xpos) (send BRA2 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA3.png") (send BRA3 get-xpos) (send BRA3 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA4.png") (send BRA4 get-xpos) (send BRA4 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA5.png") (send BRA5 get-xpos) (send BRA5 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA6.png") (send BRA6 get-xpos) (send BRA6 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA7.png") (send BRA7 get-xpos) (send BRA7 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA8.png") (send BRA8 get-xpos) (send BRA8 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA9.png") (send BRA9 get-xpos) (send BRA9 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA10.png") (send BRA10 get-xpos) (send BRA10 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/BRA11.png") (send BRA11 get-xpos) (send BRA11 get-ypos))
                 
                 ; coloca el texto del marcador
                 (send dc draw-text (~a "CRC  " scoreTeam1 " BRA  " scoreTeam2) 10 5)
-                
                 )
               ]
              )
-  )
+)
 
 ; Make a button in the frame
 (new button% [parent frame]
              [label "prueba"]
              [callback (lambda (button event)
                          (set! scoreTeam1 (+ scoreTeam1 1))
+                         ;(animation CRC1 222  333)
+                         (newpos players coords) 
+                         ;(set! CR1x (+ CR1x 50)
                          (send canvas refresh-now)
                          )
                        ]
@@ -112,33 +127,116 @@
         
         
   
-; Cambia las coordenadas para la animacion FALTA CONECTARLO CON LA INTERFAZ
+; Cambia las coordenadas para la animacion HACER HILOS
 
-(define (animation player xNewPos yNewPos X Y)
+(define (animation player xNewPos yNewPos)
   (cond
+    ((and (>= (send player get-xpos)  xNewPos) (>= (send player get-ypos) yNewPos))
+      (send player set-xpos (- (send player get-xpos) 1))
+      (send player set-ypos (- (send player get-ypos) 1))
+      ;(sleep 0.01)
+      (send canvas refresh-now)
+      (animation player xNewPos yNewPos)  
+    )
+
+
+    ((and (<= (send player get-xpos)  xNewPos ) (<= (send player get-ypos) yNewPos))
+      (send player set-xpos (+ (send player get-xpos) 1))
+      (send player set-ypos (+ (send player get-ypos) 1))
+      ;(sleep 0.01)
+      (send canvas refresh-now)
+      (animation player xNewPos yNewPos)
+    )
+
+    ((and (<= (send player get-xpos)  xNewPos ) (>= (send player get-ypos) yNewPos))
+      (send player set-xpos (+ (send player get-xpos) 1))
+      (send player set-ypos (- (send player get-ypos) 1))
+      ;(sleep 0.01)
+      (send canvas refresh-now)
+      (animation player xNewPos yNewPos)
+    )
+
+    ((and (>= (send player get-xpos)  xNewPos ) (<= (send player get-ypos) yNewPos))
+      (send player set-xpos (- (send player get-xpos) 1))
+      (send player set-ypos (+ (send player get-ypos) 1))
+      ;(sleep 0.01)
+      (send canvas refresh-now)
+      (animation player xNewPos yNewPos)
+    ) 
+    (else
+      0
+    )
+  )
+)
+
+#|
+; -----------------------------------------------------------------------------------------------------
     ((and (>= (send player get-xpos)  xNewPos) (>= (send player get-ypos) yNewPos)) 0)
     (else
      (send player set-xpos (+ (send player get-xpos) 5))
      (send player set-ypos (+ (send player get-ypos) 5))
-     (set! X (send player get-xpos))
-     (set! Y (send player get-ypos))
      (sleep 0.1)
      (send canvas refresh-now)
-     (animation player xNewPos yNewPos X Y)
+     (animation player xNewPos yNewPos)
     )
+; -----------------------------------------------------------------------------------------------------
     )
+  )
+|#
+
+; jugadores ----------------------------------------------------------
+(define CRC1 (new player% (x 320) (y 10)))
+(define CRC2 (new player% (x 320) (y 10)))
+(define CRC3 (new player% (x 320) (y 10)))
+(define CRC4 (new player% (x 320) (y 10)))
+(define CRC5 (new player% (x 320) (y 10)))
+(define CRC6 (new player% (x 320) (y 10)))
+(define CRC7 (new player% (x 320) (y 10)))
+(define CRC8 (new player% (x 320) (y 10)))
+(define CRC9 (new player% (x 320) (y 10)))
+(define CRC10 (new player% (x 320) (y 10)))
+(define CRC11 (new player% (x 320) (y 10)))
+(define BRA1 (new player% (x 360) (y 10)))
+(define BRA2 (new player% (x 360) (y 10)))
+(define BRA3 (new player% (x 360) (y 10)))
+(define BRA4 (new player% (x 360) (y 10)))
+(define BRA5 (new player% (x 360) (y 10)))
+(define BRA6 (new player% (x 360) (y 10)))
+(define BRA7 (new player% (x 360) (y 10)))
+(define BRA8 (new player% (x 360) (y 10)))
+(define BRA9 (new player% (x 360) (y 10)))
+(define BRA10 (new player% (x 360) (y 10)))
+(define BRA11 (new player% (x 360) (y 10)))
+
+
+(define players (list CRC1 CRC2 CRC3 CRC4 CRC5 CRC6 CRC7 CRC8 CRC9 CRC10 CRC11 BRA1 BRA2 BRA3 BRA4 BRA5 BRA6 BRA7 BRA8 BRA9 BRA10 BRA11))
+(define coords (list (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     (list (random 100) (random 100)) (list (random 100) (random 100))
+                     )
+  
   )
 
 
-; pruebas ----------------------------------------------------------
-(define CRC1 (new player% (x 25) (y 25)))
-(define jug2 (new player% (x 8) (y 8)))
-(define jug3 (new player% (x 8) (y 8)))
-(define jugadores (list CRC1 jug2))
-(define coords (list (list 100 100) (list 50 50)))
-
-(define xRec 100)
-(define yRec 100)
 
 ; pruebas ----------------------------------------------------------
 
