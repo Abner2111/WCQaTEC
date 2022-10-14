@@ -1,6 +1,7 @@
 #lang racket/gui
 
 (require racket/gui/base)
+(require 2htdp/universe)
 
 (define scoreTeam1 0)
 (define scoreTeam2 0)
@@ -9,6 +10,8 @@
 (define CR1y 250)
 (define CR2x 320)
 (define CR2y 250)
+(define CR3x 320)
+(define CR3y 250)
 
 
 ; Creates window frame
@@ -26,18 +29,10 @@
                 ; coloca la imagen
                 (send dc draw-bitmap(read-bitmap "Resources/field.jpg") 0 35 )
                 (send dc draw-bitmap(read-bitmap "Resources/CRC1.png") xRec yRec )
+                (send dc draw-bitmap(read-bitmap "Resources/CRC2.png") CR1x CR1y )
                 
                 ; coloca el texto del marcador
                 (send dc draw-text (~a "CRC  " scoreTeam1 " BRA  " scoreTeam2) 10 5)
-
-                ; dibuja un ractangulo de prueba
-                ;(send dc draw-rectangle xRec yRec 30 30)
-                ;(send dc draw-rectangle CR1x CR1y 30 30)
-                ;(send dc draw-rectangle CR2x CR2y 30 30)
-                
-                ;(animation CRC1 320 250 dc)
-                ;(posiniciales jugadores coords dc)
-                ;(send CRC1 move 200 250 dc)
                 
                 )
               ]
@@ -49,12 +44,7 @@
              [label "prueba"]
              [callback (lambda (button event)
                          (set! scoreTeam1 (+ scoreTeam1 1))
-                         (animation CRC1 320 250)
-                         ;(send CRC1 set-xpos (random 500))
-                         ;(send CRC1 set-ypos (random 500))
-                         ;(send CRC1 set-draw dc)
-                         ;(set! yRec (random 500))
-                         ;(send canvas refresh-now)
+                         (send canvas refresh-now)
                          )
                        ]
              )
@@ -124,17 +114,17 @@
   
 ; Cambia las coordenadas para la animacion FALTA CONECTARLO CON LA INTERFAZ
 
-(define (animation player xNewPos yNewPos)
+(define (animation player xNewPos yNewPos X Y)
   (cond
     ((and (>= (send player get-xpos)  xNewPos) (>= (send player get-ypos) yNewPos)) 0)
     (else
      (send player set-xpos (+ (send player get-xpos) 5))
      (send player set-ypos (+ (send player get-ypos) 5))
-     (set! xRec (send player get-xpos))
-     (set! yRec (send player get-ypos))
+     (set! X (send player get-xpos))
+     (set! Y (send player get-ypos))
      (sleep 0.1)
      (send canvas refresh-now)
-     (animation player xNewPos yNewPos)
+     (animation player xNewPos yNewPos X Y)
     )
     )
   )
@@ -143,20 +133,14 @@
 ; pruebas ----------------------------------------------------------
 (define CRC1 (new player% (x 25) (y 25)))
 (define jug2 (new player% (x 8) (y 8)))
+(define jug3 (new player% (x 8) (y 8)))
 (define jugadores (list CRC1 jug2))
 (define coords (list (list 100 100) (list 50 50)))
 
-(define xRec (send CRC1 get-xpos))
-(define yRec (send CRC1 get-ypos))
+(define xRec 100)
+(define yRec 100)
 
 ; pruebas ----------------------------------------------------------
-
-;;prueba
-;;(print (car (car coords)))
-;(send (car jugadores) get-xpos)
-;(send (car jugadores) get-ypos)
-;(send jug2 get-xpos)
-;(send jug2 get-ypos)
 
 (send frame show #t)
 
