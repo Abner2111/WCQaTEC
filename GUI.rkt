@@ -102,6 +102,44 @@
       (send dc translate x y))
   ))
 
+;Class for ball
+(define ball%
+  (class object%
+
+    ;atributos iniciales
+    (init xi yi xf yf)
+
+    ;Definicion de atributos
+    (define xIni xi)
+    (define yIni yi)
+    (define xFin xf)
+    (define yFin yf)
+
+    (super-new) ;No sé si es necesario ponerlo
+
+    ;Getters
+    (define/public (get-xini) xIni)
+    (define/public (get-yini) yIni)
+    (define/public (get-xfin) xFin)
+    (define/public (get-yfin) yFin)
+
+    ;Setters
+    (define/public (set-xini newXini)
+      (set! xIni newXini))
+    (define/public (set-yini newYini)
+      (set! yIni newYini))
+    (define/public (set-xfin newXfin)
+      (set! xFin newXfin))
+    (define/public (set-yfin newYfin)
+      (set! yFin newYfin))
+    (define/public (ballpass newXfin newYfin)
+      (set! xIni newXfin)
+      (set! yIni newYfin))
+    ))
+    
+
+    
+
 ; Crea las posiciones iniciales de todos los jugadores 
 (define (posiniciales listajugs listacoord canvas)
   (cond ((or (null? listacoord) (null? listajugs))
