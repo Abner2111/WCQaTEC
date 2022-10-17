@@ -193,25 +193,76 @@
     )
   )
 )
-;; ouput de poblacion inicial
-;; '((1 1 1) ((32 0 0 5 2) (32 50 7 0 5) (22 20 7 1 0)) ((62 15 5 2 4) (62 0 3 8 8) (77 40 2 1 7)) ((87 10 2 6 7) (87 40 3 4 0) (82 35 4 3 8)))
-(car '((1 1 1) ((32 0 0 5 2) (32 50 7 0 5) (22 20 7 1 0)) ((62 15 5 2 4) (62 0 3 8 8) (77 40 2 1 7)) ((87 10 2 6 7) (87 40 3 4 0) (82 35 4 3 8))))
-(cdr '((1 1 1) ((32 0 0 5 2) (32 50 7 0 5) (22 20 7 1 0)) ((62 15 5 2 4) (62 0 3 8 8) (77 40 2 1 7)) ((87 10 2 6 7) (87 40 3 4 0) (82 35 4 3 8))))
 
 ;;'((4 4 2) ((22 25 4 7 9) (27 30 0 9 9) (32 35 3 8 2) (27 10 5 3 1) (22 10 2 9 7) (22 15 4 6 4) (22 35 7 0 4) (32 50 5 2 7) (27 5 1 8 3) (32 35 2 1 0) (22 30 10 4 4) (27 10 3 0 8)) ((42 15 3 4 1) (72 40 9 9 2) (42 0 0 7 0) (77 35 6 8 6) (62 50 8 1 1) (52 45 7 1 9) (57 40 5 7 9) (42 25 5 8 5) (42 0 4 6 1) (52 15 0 2 4) (57 10 6 6 2) (72 20 1 2 1)) ((92 45 4 5 6) (82 30 6 10 0) (82 30 9 2 9) (87 50 4 5 2) (97 25 2 0 0) (82 5 3 9 0)))
 
+#|
 (fitness (cdr '((4 4 2) ((22 25 4 7 9) (27 30 0 9 9) (32 35 3 8 2) (27 10 5 3 1) (22 10 2 9 7) (22 15 4 6 4) (22 35 7 0 4) (32 50 5 2 7) (27 5 1 8 3) (32 35 2 1 0) (22 30 10 4 4) (27 10 3 0 8)) ((42 15 3 4 1) (72 40 9 9 2) (42 0 0 7 0) (77 35 6 8 6) (62 50 8 1 1) (52 45 7 1 9) (57 40 5 7 9) (42 25 5 8 5) (42 0 4 6 1) (52 15 0 2 4) (57 10 6 6 2) (72 20 1 2 1)) ((92 45 4 5 6) (82 30 6 10 0) (82 30 9 2 9) (87 50 4 5 2) (97 25 2 0 0) (82 5 3 9 0))))
 (car '((4 4 2) ((22 25 4 7 9) (27 30 0 9 9) (32 35 3 8 2) (27 10 5 3 1) (22 10 2 9 7) (22 15 4 6 4) (22 35 7 0 4) (32 50 5 2 7) (27 5 1 8 3) (32 35 2 1 0) (22 30 10 4 4) (27 10 3 0 8)) ((42 15 3 4 1) (72 40 9 9 2) (42 0 0 7 0) (77 35 6 8 6) (62 50 8 1 1) (52 45 7 1 9) (57 40 5 7 9) (42 25 5 8 5) (42 0 4 6 1) (52 15 0 2 4) (57 10 6 6 2) (72 20 1 2 1)) ((92 45 4 5 6) (82 30 6 10 0) (82 30 9 2 9) (87 50 4 5 2) (97 25 2 0 0) (82 5 3 9 0)))))
+|#
 
 ;;----------------------------------------------------------------------------------------------------
 
 ;;CROSSOVER
 ;;----------------------------------------------------------------------------------------------------
+(define (crossover population)
+  (list 
+    (crossover-perposition (car population) 1) 
+    (crossover-perposition (cadr population) 2) 
+    (crossover-perposition (caddr population) 3)
+  )
+)
 
+(define (crossover-perposition jugadores posicion)
+  (crossover-aux jugadores (car jugadores) posicion)
+)
+
+(define (crossover-per-position-aux jugadores primer-jugador posicion)
+  (
+    cond
+    (
+      (null? jugadores)
+      '()
+    )
+    (
+      (null? (cadr jugadores))
+      (cons (cross-parent-genes (car jugadores) primer-jugador posicion) (crossover-per-position-aux (cdr jugadores) primer-jugador posicion))
+    )
+    (
+      else
+      (cons (cross-parent-genes (car jugadores) (cadr jugadores) posicion) (crossover-per-position-aux (cdr jugadores) primer posicion))
+    )
+  )
+)
+
+(define (cross-parent-genes jugador1 jugador2 posicion)
+  (cross-genes-aux1 jugador1 jugador2 (+ 2 posicion))
+)
+
+(define (cross-genes-aux1 jugador1 jugador2 punto-corte) 
+  (
+    cond
+    (
+      (null? jugador2)
+      '()
+    )
+    (
+      (<= punto-corte 1)
+      (cons (car jugador2) (cross-genes-aux1 jugador1 (cdr jugador2) punto-corte) )
+    )
+    (
+      else
+      (cons (car jugador1) (cross-genes-aux1 (cdr jugador1) (cdr jugador2) (- punto-corte 1)))
+    )
+  )
+)
+
+(cross-parent-genes '(45 34 4 7 3) '(78 90 10 1 6) 1)
 ;;----------------------------------------------------------------------------------------------------
 
 
 ;;MUTATION
 ;;----------------------------------------------------------------------------------------------------
+
 
 ;;----------------------------------------------------------------------------------------------------
