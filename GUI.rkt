@@ -131,7 +131,8 @@
 
 (define (animation player xNewPos yNewPos)
   (cond
-    ((and (>= (send player get-xpos)  xNewPos) (>= (send player get-ypos) yNewPos))
+    ((and (equal? (send player get-xpos)  xNewPos) (equal? (send player get-ypos) yNewPos)) 0)
+    ((and (> (send player get-xpos)  xNewPos) (> (send player get-ypos) yNewPos))
       (send player set-xpos (- (send player get-xpos) 1))
       (send player set-ypos (- (send player get-ypos) 1))
       ;(sleep 0.01)
@@ -140,7 +141,7 @@
     )
 
 
-    ((and (<= (send player get-xpos)  xNewPos ) (<= (send player get-ypos) yNewPos))
+    ((and (< (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
       (send player set-xpos (+ (send player get-xpos) 1))
       (send player set-ypos (+ (send player get-ypos) 1))
       ;(sleep 0.01)
@@ -148,7 +149,7 @@
       (animation player xNewPos yNewPos)
     )
 
-    ((and (<= (send player get-xpos)  xNewPos ) (>= (send player get-ypos) yNewPos))
+    ((and (< (send player get-xpos)  xNewPos ) (> (send player get-ypos) yNewPos))
       (send player set-xpos (+ (send player get-xpos) 1))
       (send player set-ypos (- (send player get-ypos) 1))
       ;(sleep 0.01)
@@ -156,7 +157,7 @@
       (animation player xNewPos yNewPos)
     )
 
-    ((and (>= (send player get-xpos)  xNewPos ) (<= (send player get-ypos) yNewPos))
+    ((and (> (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
       (send player set-xpos (- (send player get-xpos) 1))
       (send player set-ypos (+ (send player get-ypos) 1))
       ;(sleep 0.01)
@@ -210,7 +211,7 @@
 
 
 (define players (list CRC1 CRC2 CRC3 CRC4 CRC5 CRC6 CRC7 CRC8 CRC9 CRC10 CRC11 BRA1 BRA2 BRA3 BRA4 BRA5 BRA6 BRA7 BRA8 BRA9 BRA10 BRA11))
-(define coords (list (list (random 100) (random 100)) (list (random 100) (random 100))
+(define coords (list (list 250 50) (list 450 200)
                      (list (random 100) (random 100)) (list (random 100) (random 100))
                      (list (random 100) (random 100)) (list (random 100) (random 100))
                      (list (random 100) (random 100)) (list (random 100) (random 100))
