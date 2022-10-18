@@ -56,10 +56,7 @@
              [label "prueba"]
              [callback (lambda (button event)
                          (set! scoreTeam1 (+ scoreTeam1 1))
-                         ;(animation CRC1 222  333)
                          (newpos players coords) 
-                         ;(ani CRC1 50 50)
-                         ;(set! CR1x (+ CR1x 50)
                          (send canvas refresh-now)
                          )
                        ]
@@ -85,6 +82,7 @@
 
     ; Se definen los metodos
     
+    ; ---> getters
     (define/public (get-xpos) xPos)
     (define/public (get-ypos) yPos)
     (define/public (get-aim) aim)
@@ -92,6 +90,7 @@
     (define/public (get-block) block)
     (define/public (get-rec) rectangulo)
 
+    ; ---> setters
     (define/public (set-xpos newX)
       (set! xPos newX))
     (define/public (set-ypos newY)
@@ -102,8 +101,6 @@
       (set! speed newSpeed))
     (define/public (set-block newBlock)
       (set! block newBlock))
-    (define/public (set-draw dc)
-      (set! rectangulo (send dc draw-rectangle xPos yPos 30 30)))
     (define/public (move x y dc)
       (send dc translate x y))
   ))
@@ -124,7 +121,6 @@
          '())
         (else
          (ani (car listajugs) (caar listacoord) (cadr (car listacoord)))
-         (sleep 2)
          (newpos (cdr listajugs) (cdr listacoord)))))
         
         
@@ -206,7 +202,7 @@
     ((and (> (send player get-xpos)  xNewPos) (> (send player get-ypos) yNewPos))
       (send player set-xpos (- (send player get-xpos) 1))
       (send player set-ypos (- (send player get-ypos) 1))
-      ;(sleep 0.01)
+      (sleep 0.2)
       (send canvas refresh-now)
       (ani player xNewPos yNewPos)  
     )
@@ -215,7 +211,7 @@
     ((and (< (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
       (send player set-xpos (+ (send player get-xpos) 1))
       (send player set-ypos (+ (send player get-ypos) 1))
-      ;(sleep 0.01)
+      (sleep 0.2)
       (send canvas refresh-now)
       (ani player xNewPos yNewPos)
     )
@@ -223,7 +219,7 @@
     ((and (< (send player get-xpos)  xNewPos ) (> (send player get-ypos) yNewPos))
       (send player set-xpos (+ (send player get-xpos) 1))
       (send player set-ypos (- (send player get-ypos) 1))
-      ;(sleep 0.01)
+      (sleep 0.2)
       (send canvas refresh-now)
       (ani player xNewPos yNewPos)
     )
@@ -231,7 +227,7 @@
     ((and (> (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
       (send player set-xpos (- (send player get-xpos) 1))
       (send player set-ypos (+ (send player get-ypos) 1))
-      ;(sleep 0.01)
+      (sleep 0.2)
       (send canvas refresh-now)
       (ani player xNewPos yNewPos)
     ) 
@@ -240,20 +236,6 @@
     )
   )
 )
-#|
-; -----------------------------------------------------------------------------------------------------
-    ((and (>= (send player get-xpos)  xNewPos) (>= (send player get-ypos) yNewPos)) 0)
-    (else
-     (send player set-xpos (+ (send player get-xpos) 5))
-     (send player set-ypos (+ (send player get-ypos) 5))
-     (sleep 0.1)
-     (send canvas refresh-now)
-     (animation player xNewPos yNewPos)
-    )
-; -----------------------------------------------------------------------------------------------------
-    )
-  )
-|#
 
 ; jugadores ----------------------------------------------------------
 (define CRC1 (new player% (x 320) (y 10)))
@@ -280,6 +262,9 @@
 (define BRA11 (new player% (x 360) (y 10)))
 
 
+
+; pruebas ----------------------------------------------------------
+
 (define players (list CRC1 CRC2 CRC3 CRC4 CRC5 CRC6 CRC7 CRC8 CRC9 CRC10 CRC11 BRA1 BRA2 BRA3 BRA4 BRA5 BRA6 BRA7 BRA8 BRA9 BRA10 BRA11))
 (define coords (list (list 50 50) (list 654 200) 
                      (list 50 80) (list 456 200)
@@ -294,10 +279,6 @@
                      (list 267 50) (list 450 111))
   
   )
-
-
-
-; pruebas ----------------------------------------------------------
 
 (send frame show #t)
 
