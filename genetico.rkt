@@ -204,6 +204,7 @@
 ;;----------------------------------------------------------------------------------------------------
 
 ;;CROSSOVER
+;;Recbe una poblacion de individuos seleccionados y devuelve una poblacion 
 ;;----------------------------------------------------------------------------------------------------
 (define (crossover population)
   (list 
@@ -213,27 +214,6 @@
   )
 )
 
-(define (crossover-perposition jugadores posicion)
-  (crossover-aux jugadores (car jugadores) posicion)
-)
-
-(define (crossover-per-position-aux jugadores primer-jugador posicion)
-  (
-    cond
-    (
-      (null? jugadores)
-      '()
-    )
-    (
-      (null? (cadr jugadores))
-      (cons (cross-parent-genes (car jugadores) primer-jugador posicion) (crossover-per-position-aux (cdr jugadores) primer-jugador posicion))
-    )
-    (
-      else
-      (cons (cross-parent-genes (car jugadores) (cadr jugadores) posicion) (crossover-per-position-aux (cdr jugadores) primer posicion))
-    )
-  )
-)
 
 (define (cross-parent-genes jugador1 jugador2 posicion)
   (cross-genes-aux1 jugador1 jugador2 (+ 2 posicion))
@@ -257,7 +237,33 @@
   )
 )
 
-(cross-parent-genes '(45 34 4 7 3) '(78 90 10 1 6) 1)
+;;(cross-parent-genes '(45 34 4 7 3) '(78 90 10 1 6) 1)
+
+(define (crossover-perposition jugadores posicion)
+  (crossover-per-position-aux jugadores (car jugadores) posicion)
+)
+
+(define (crossover-per-position-aux jugadores primer-jugador posicion)
+  (
+    cond
+    (
+      (null? jugadores)
+      '()
+    )
+    (
+      (null? (cdr jugadores))
+      (cons (cross-parent-genes (car jugadores) primer-jugador posicion) (crossover-per-position-aux (cdr jugadores) primer-jugador posicion))
+    )
+    (
+      else
+      (cons (cross-parent-genes (car jugadores) (cadr jugadores) posicion) (crossover-per-position-aux (cdr jugadores) primer-jugador posicion))
+    )
+  )
+)
+;;(crossover-perposition '((22 10 2 9 7) (22 15 4 6 4) (22 30 10 4 4) (22 35 7 0 4)) 1)
+
+
+(crossover '(((22 10 2 9 7) (22 15 4 6 4) (22 30 10 4 4) (22 35 7 0 4)) ((42 0 0 7 0) (42 25 5 8 5) (77 35 6 8 6) (57 40 5 7 9)) ((52 45 7 1 9) (57 40 5 7 9))))
 ;;----------------------------------------------------------------------------------------------------
 
 
