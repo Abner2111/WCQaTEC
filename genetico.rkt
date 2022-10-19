@@ -1,17 +1,35 @@
 #lang racket/gui
 
+(provide genetico)
 ;;POBLACION INICIAL
 ;;----------------------------------------------------------------------------------------------------
 ;;se le da una alineacion '(num_defensas, num_medios,num_delanteros)
 ;;retorna una lista con listas con 3 veces mas la cantidad de los jugadores indicados en la alineacion
 ;;jugador = (posx, posy, interceptar [0-10], velocidad [0-10], punteria [0-10] )
-(define (poblacion_inicial alineacion)
-    (list 
-        alineacion 
-        (jugadores_iniciales (* 3 (car alineacion)) 1 '()) 
-        (jugadores_iniciales (* 3 (cadr alineacion)) 2 '()) 
-        (jugadores_iniciales (* 3 (caddr alineacion)) 3 '())
+;; casa es 1 si es local, visita es casa=0
+(define (poblacion_inicial alineacion casa)
+    (
+      cond
+      (
+        (equal? casa 1)
+        (list 
+          alineacion 
+          (jugadores_iniciales (* 3 (car alineacion)) 1 '()) 
+          (jugadores_iniciales (* 3 (cadr alineacion)) 2 '()) 
+          (jugadores_iniciales (* 3 (caddr alineacion)) 3 '())
+        )
+      )
+      (
+        else
+        (list 
+          alineacion 
+          (jugadores_iniciales (* 3 (car alineacion)) 3 '()) 
+          (jugadores_iniciales (* 3 (cadr alineacion)) 2 '()) 
+          (jugadores_iniciales (* 3 (caddr alineacion)) 1 '())
+        )
+      )
     )
+    
 )
 
 (define (jugadores_iniciales cantidad pos jugadores)
@@ -67,23 +85,45 @@
     )
    
 )
-(poblacion_inicial '(4 4 2))
+;;(poblacion_inicial '(4 4 2))
 ;;----------------------------------------------------------------------------------------------------
 
 
 ;;FITNESS 
 ;;Recibe lista de jugadores (defensas, medios, delanteros) y la alineacion
 ;;----------------------------------------------------------------------------------------------------
-
-(define (fitness poblacion alineacion)
-    (list 
-        alineacion
-        (select-cuantity (car alineacion) (quicksort  (car poblacion) 1) '())
-        (select-cuantity (cadr alineacion) (quicksort  (cadr poblacion) 2) '())
-        (select-cuantity (caddr alineacion) (quicksort  (cadr poblacion) 3) '())
-    )
+;; casa es 1 o 0. 1 si es home, 0 si es visita
+(define (fitness poblacion-alineacion casa)
+  (fitness-aux (cdr poblacion-alineacion) (car poblacion-alineacion) casa)
 )
 
+(define (fitness-aux poblacion alineacion casa)
+    (
+      cond
+      (
+        (equal? casa 1)
+        (list 
+          alineacion
+          (select-cuantity  (car alineacion) (quicksort  (car poblacion) 1) '())
+          (select-cuantity  (cadr alineacion) (quicksort  (cadr poblacion) 2) '())
+          (select-cuantity  (caddr alineacion) (quicksort  (cadr poblacion) 3) '())
+        )
+      )
+      (
+        else
+        (list 
+          alineacion
+          (select-cuantity  (car alineacion) (quicksort  (car poblacion) 3) '())
+          (select-cuantity  (cadr alineacion) (quicksort  (cadr poblacion) 2) '())
+          (select-cuantity  (caddr alineacion) (quicksort  (cadr poblacion) 1) '())
+        )
+      )
+    )
+    
+)
+
+
+;;selecciona la cantidad de jugadores necesarios de acuerdo a la alineacion y una poblacion de jugadores ordenada en orden descendiente
 (define (select-cuantity cantidad poblacion jugadores-seleccionados)
     (
         cond
@@ -91,6 +131,7 @@
             (zero? cantidad)
             jugadores-seleccionados
         )
+        
         (
             else
             (select-cuantity (- cantidad 1 ) (cdr poblacion) (cons (car poblacion) jugadores-seleccionados))
@@ -111,6 +152,7 @@
         )
   )
 )
+;;ELEMENTO DE COMPARACION EN EL QUICKSORT,
 ;; delanteros: ((interceptar [0-10] + velocidad [0-10] +  punteria [0-10])/ 8) + punteria
 ;; medios: ((interceptar [0-10] + velocidad [0-10] +  punteria [0-10]) / 8) + velocidad
 ;; defensas: ((interceptar [0-10] + velocidad [0-10] + punteria [0-10]) / ) + interceptar
@@ -207,15 +249,36 @@
 ;;CROSSOVER
 ;;Recbe una poblacion de individuos seleccionados y devuelve una poblacion 
 ;;----------------------------------------------------------------------------------------------------
-(define (crossover population)
-  (list 
-    (crossover-perposition (car population) 1) 
-    (crossover-perposition (cadr population) 2) 
-    (crossover-perposition (caddr population) 3)
+;;genera una cantidad de individuos cruzados igual a la cantidad de poblacion de entrada
+;;casa es 1 si es local, 0 si es visita
+(define (crossover population casa)
+  (
+    cond
+    (
+      (equal? casa 1)
+      (list 
+        ;;se hace crossover individualmente a defensas, medios y delanteros
+        (car population)
+        (crossover-perposition (cadr population) 1) 
+        (crossover-perposition (caddr population) 2) 
+        (crossover-perposition (cadddr population) 3)
+      )
+    )
+    (
+      else
+      (list 
+        ;;se hace crossover individualmente a defensas, medios y delanteros
+        (car population)
+        (crossover-perposition (cadr population) 3) 
+        (crossover-perposition (caddr population) 2) 
+        (crossover-perposition (cadddr population) 1)
+      )
+    )
   )
+  
 )
 
-
+;;hace crossover de los jugadores con el mismo y el siguiente a partir de un punto de corte
 (define (cross-parent-genes jugador1 jugador2 posicion)
   (cross-genes-aux1 jugador1 jugador2 (+ 2 posicion))
 )
@@ -228,11 +291,12 @@
       '()
     )
     (
-      (<= punto-corte 1)
+      (<= punto-corte 1) ;;en el punto de corte, se pasa añadir los datos del jugador2 
       (cons (car jugador2) (cross-genes-aux1 jugador1 (cdr jugador2) punto-corte) )
     )
     (
       else
+      ;;antes del punto de corte se añaden los datos del jugador1
       (cons (car jugador1) (cross-genes-aux1 (cdr jugador1) (cdr jugador2) (- punto-corte 1)))
     )
   )
@@ -240,6 +304,7 @@
 
 ;;(cross-parent-genes '(45 34 4 7 3) '(78 90 10 1 6) 1)
 
+;;hace un crosover de los jugadores, para un solo tipo de jugador
 (define (crossover-perposition jugadores posicion)
   (crossover-per-position-aux jugadores (car jugadores) posicion)
 )
@@ -248,15 +313,17 @@
   (
     cond
     (
-      (null? jugadores)
+      (null? jugadores);;se recorrio la lista de jugadores
       '()
     )
     (
       (null? (cdr jugadores))
-      (cons (cross-parent-genes (car jugadores) primer-jugador posicion) (crossover-per-position-aux (cdr jugadores) primer-jugador posicion))
+      ;;se hace crossover entre el primer y ultimo elemento de la lista
+      (cons (cross-parent-genes (car jugadores) primer-jugador posicion) (crossover-per-position-aux (cdr jugadores) primer-jugador posicion)) ;;el jugador actual es el ultimo en la lista
     )
     (
-      else
+      else 
+      ;; elementos que no son el ultimo elemento de la lista
       (cons (cross-parent-genes (car jugadores) (cadr jugadores) posicion) (crossover-per-position-aux (cdr jugadores) primer-jugador posicion))
     )
   )
@@ -279,6 +346,31 @@
 )
 |#
 
+;;jugadores->lista de jugadores
+;;posicion-> 1: defensa, 2:medio, 3: delantero
+#|
+(define (mutate-per-position jugadores posicion)
+  (
+    cond
+    (
+      (null? jugadores)
+      '()
+    )
+    (
+      else
+      (cons (mutate-individual posicion (random 6) 0) (mutate-per-position (cdr jugadores) posicion))
+    )
+  )
+)
+|#
+#|
+(define (mutate-individual jugador posicion index-to-modify index)
+
+)
+
+|#
+
+;;encuentra la cantidad de digitos que tiene un numero
 (define (digit-num num)
   (
     cond
@@ -295,3 +387,57 @@
 
 ;;(digit-num 900000)
 ;;----------------------------------------------------------------------------------------------------
+
+;;(fitness (poblacion_inicial '(3 5 2)))
+
+
+;;GENETICO
+
+;;genera una nueva poblacion usando la actual generacion, unida al crossover y la mutacion de la misma
+(define (new_population generacion casa)
+  (append 
+    (list (car generacion))
+    (list (append (cadr generacion) (cadr (crossover generacion casa))))
+    (list (append (caddr generacion) (caddr (crossover generacion casa))))
+    (list (append (caddr generacion) (caddr (crossover generacion casa))))
+  )
+)
+(define (genetico locales visita n-generaciones)
+  (genetico-aux locales visita n-generaciones 0 '() '())
+)
+
+(define (genetico-aux locales visita n-generaciones curr-gen local-gen visita-gen)
+  (
+    cond
+    (
+      (equal? (n-generaciones) curr-gen)
+      (list local-gen visita-gen)
+    )
+    (
+      (zero? curr-gen)
+      (genetico-aux 
+        locales visita 
+        n-generaciones (+ 1 curr-gen) 
+        (append local-gen (list (fitness (poblacion_inicial locales 1) 1))) 
+        (append local-gen (list (fitness (poblacion_inicial visita 0) 0)))
+      )
+    )
+    (
+      else
+      (genetico-aux
+       locales visita 
+       n-generaciones 
+       (+ 1 curr-gen) 
+       (append local-gen (list (fitness (new_population (n-esimo (largo local-gen) local-gen ) 1) 1))) 
+       (append visita-gen (list (fitness (new_population (n-esimo (largo visita-gen) visita-gen ) 0) 0))))
+    )
+  )
+
+  
+  
+
+)
+
+(genetico '(4 4 2) '(3 3 4) 2)
+
+;;(new_population '((3 5 2) ((133 112 7 0 5) (133 400 8 4 6) (59 256 6 4 0)) ((208 400 6 6 9) (319 40 6 7 9) (282 256 2 6 5) (208 400 9 6 5) (430 148 4 9 5)) ((208 400 9 6 5) (430 148 4 9 5))) 1)
