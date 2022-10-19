@@ -43,6 +43,7 @@
                 (send dc draw-bitmap(read-bitmap "Resources/BRA9.png") (send BRA9 get-xpos) (send BRA9 get-ypos))
                 (send dc draw-bitmap(read-bitmap "Resources/BRA10.png") (send BRA10 get-xpos) (send BRA10 get-ypos))
                 (send dc draw-bitmap(read-bitmap "Resources/BRA11.png") (send BRA11 get-xpos) (send BRA11 get-ypos))
+                (send dc draw-bitmap(read-bitmap "Resources/Ball.png") (send Ball get-xpos) (send Ball get-ypos))
                 
                 ; coloca el texto del marcador
                 (send dc draw-text (~a "CRC  " scoreTeam1 " BRA  " scoreTeam2) 10 5)
@@ -55,9 +56,12 @@
 (new button% [parent frame]
              [label "prueba"]
              [callback (lambda (button event)
-                         (set! scoreTeam1 (+ scoreTeam1 1))
-                         (newpos players coords) 
+                         ;(set! scoreTeam1 (+ scoreTeam1 1))
+                         ;(newpos players coords)
+                         (ani Ball 615 224)
                          (send canvas refresh-now)
+                         ;(collisionBL Ball)
+                         (collisionBM Ball)
                          )
                        ]
              )
@@ -77,6 +81,7 @@
     (define speed 0)
     (define block 0)
     (define rectangulo 0) 
+    (define tag "player")
 
     (super-new)
 
@@ -89,6 +94,7 @@
     (define/public (get-speed) speed)
     (define/public (get-block) block)
     (define/public (get-rec) rectangulo)
+    (define/public (get-tag) tag)
 
     ; ---> setters
     (define/public (set-xpos newX)
@@ -102,7 +108,7 @@
     (define/public (set-block newBlock)
       (set! block newBlock))
     (define/public (move x y dc)
-      (send dc translate x y))
+      (send dc translate x y))  
   ))
 
 ;Class for ball
@@ -110,26 +116,32 @@
   (class object%
 
     ;atributos iniciales
-    (init xi yi xf yf)
+    (init x y)
 
     ;Definicion de atributos
-    (define xIni xi)
-    (define yIni yi)
-    (define xFin xf)
-    (define yFin yf)
+    ;(define xPos x)
+    ;(define yPos y)
+    (define xIni x)
+    (define yIni y)
+    (define xFin x)
+    (define yFin y)
+    (define tag "ball")
 
     (super-new) ;No sé si es necesario ponerlo
 
     ;Getters
-    (define/public (get-xini) xIni)
-    (define/public (get-yini) yIni)
+    ;(define/public (get-xpos) xPos)
+    ;(define/public (get-ypos) yPos)
+    (define/public (get-xpos) xIni)
+    (define/public (get-ypos) yIni)
     (define/public (get-xfin) xFin)
     (define/public (get-yfin) yFin)
+    (define/public (get-tag) tag)
 
     ;Setters
-    (define/public (set-xini newXini)
+    (define/public (set-xpos newXini)
       (set! xIni newXini))
-    (define/public (set-yini newYini)
+    (define/public (set-ypos newYini)
       (set! yIni newYini))
     (define/public (set-xfin newXfin)
       (set! xFin newXfin))
@@ -165,52 +177,14 @@
   
 ; Cambia las coordenadas para la animacion HACER HILOS
 
-(define (animation player xNewPos yNewPos)
-  (cond
-    ((and (equal? (send player get-xpos)  xNewPos) (equal? (send player get-ypos) yNewPos)) 0)
-    ((and (> (send player get-xpos)  xNewPos) (> (send player get-ypos) yNewPos))
-      (send player set-xpos (- (send player get-xpos) 1))
-      (send player set-ypos (- (send player get-ypos) 1))
-      ;(sleep 0.01)
-      (send canvas refresh-now)
-      (animation player xNewPos yNewPos)  
-    )
-
-
-    ((and (< (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
-      (send player set-xpos (+ (send player get-xpos) 1))
-      (send player set-ypos (+ (send player get-ypos) 1))
-      ;(sleep 0.01)
-      (send canvas refresh-now)
-      (animation player xNewPos yNewPos)
-    )
-
-    ((and (< (send player get-xpos)  xNewPos ) (> (send player get-ypos) yNewPos))
-      (send player set-xpos (+ (send player get-xpos) 1))
-      (send player set-ypos (- (send player get-ypos) 1))
-      ;(sleep 0.01)
-      (send canvas refresh-now)
-      (animation player xNewPos yNewPos)
-    )
-
-    ((and (> (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
-      (send player set-xpos (- (send player get-xpos) 1))
-      (send player set-ypos (+ (send player get-ypos) 1))
-      ;(sleep 0.01)
-      (send canvas refresh-now)
-      (animation player xNewPos yNewPos)
-    ) 
-    (else
-      0
-    )
-  )
-)
-
 (define (ani player xNewPos yNewPos)
+;(cond (equal? (send player get-tag) "player"))
+  ;(collisionBL Ball xNewPos yNewPos)
+  (collisionBM Ball)
   (cond
-    ((and (equal? (send player get-xpos)  xNewPos) (not (equal? (send player get-ypos) yNewPos)))
+    ((and (equal? (send player get-xpos)  xNewPos) (not (equal? (send player get-ypos) yNewPos))) ;si ya llego a la pos x y si no ha llegado a la pos y
      (cond
-       ((> (send player get-ypos) yNewPos)
+       ((> (send player get-ypos) yNewPos) ;si ya llego a x, solo se mueve en y
         (send player set-ypos (- (send player get-ypos) 1))
         (send canvas refresh-now)
         (ani player xNewPos yNewPos))
@@ -262,14 +236,48 @@
       (send player set-ypos (+ (send player get-ypos) 1))
       (send canvas refresh-now)
       (ani player xNewPos yNewPos)
-    ) 
+    )
     (else
       0
     )
   )
 )
 
-; jugadores ----------------------------------------------------------
+(define (collisionBL ball xNewPos yNewPos) ;colision bola-limites cancha
+  (cond ((equal? (send ball get-ypos) 392 ) ;limite inferior
+        ;;(send ball set-ypos (* (send ball get-ypos) 1))
+        ;;(send ball set-xpos (* (send ball get-xpos) -1))
+        ;(ani ball xNewPos (- 500 (- yNewPos 392)))
+        (print "inf"))
+        ;(send canvas refresh-now))
+        ((equal? (send ball get-ypos) 14);limite superior
+         ;(send ball set-ypos (* (send ball get-ypos) 1))
+         ;(send ball set-xpos (* (send ball get-xpos) -1))
+        ;(send canvas refresh-now))
+         (print "sup"))
+         ((equal? (send ball get-xpos) 598) ;limite derecho
+          ;(send ball set-ypos (* (send ball get-ypos) -1))
+          ;(send ball set-xpos (* (send ball get-xpos) 1))
+        ;(send canvas refresh-now))
+          (print "der"))
+         ((equal? (send ball get-xpos) 22) ;limite izquierdo
+          ;(send ball set-ypos (* (send ball get-ypos) -1))
+          ;(send ball set-xpos (* (send ball get-xpos) 1)))
+        (send canvas refresh-now)
+          (print "izq"))
+         )
+  )
+
+(define (collisionBM ball) ;colision bola-marco
+  (cond ((and (equal? (send ball get-xpos) 25) ;marco izquierdo
+          (and (>= (send ball get-ypos) 180) (<= (send ball get-ypos) 225))
+          (set! scoreTeam1 (+ scoreTeam1 1))))
+         ((and (equal? (send ball get-xpos) 615) ;marco derecho
+          (and (>= (send ball get-ypos) 180) (<= (send ball get-ypos) 225))
+          (set! scoreTeam2 (+ scoreTeam2 1))))))
+
+  
+; jugadores y bola ----------------------------------------------------------
 (define CRC1 (new player% (x 320) (y 10)))
 (define CRC2 (new player% (x 320) (y 10)))
 (define CRC3 (new player% (x 320) (y 10)))
@@ -292,7 +300,7 @@
 (define BRA9 (new player% (x 360) (y 10)))
 (define BRA10 (new player% (x 360) (y 10)))
 (define BRA11 (new player% (x 360) (y 10)))
-
+(define Ball (new ball% (x (+ 22 (random 597))) (y (+ 14 (random 397)))))
 
 
 ; pruebas ----------------------------------------------------------
