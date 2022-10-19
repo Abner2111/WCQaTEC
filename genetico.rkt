@@ -153,9 +153,9 @@
   )
 )
 ;;ELEMENTO DE COMPARACION EN EL QUICKSORT,
-;; delanteros: ((interceptar [0-10] + velocidad [0-10] +  punteria [0-10])/ 8) + punteria
-;; medios: ((interceptar [0-10] + velocidad [0-10] +  punteria [0-10]) / 8) + velocidad
-;; defensas: ((interceptar [0-10] + velocidad [0-10] + punteria [0-10]) / ) + interceptar
+;; delanteros: ((interceptar [0-10] + velocidad [0-10] +  punteria [0-10])/ 3) + punteria
+;; medios: ((interceptar [0-10] + velocidad [0-10] +  punteria [0-10]) / 3) + velocidad
+;; defensas: ((interceptar [0-10] + velocidad [0-10] + punteria [0-10]) / 3) + interceptar
 (define (smaller_grater pivot lista menores mayores posicion)
   (cond ( (null? lista)
           (list menores mayores))
@@ -328,10 +328,7 @@
     )
   )
 )
-;;(crossover-perposition '((22 10 2 9 7) (22 15 4 6 4) (22 30 10 4 4) (22 35 7 0 4)) 1)
 
-
-;;(crossover '(((22 10 2 9 7) (22 15 4 6 4) (22 30 10 4 4) (22 35 7 0 4)) ((42 0 0 7 0) (42 25 5 8 5) (77 35 6 8 6) (57 40 5 7 9)) ((52 45 7 1 9) (57 40 5 7 9))))
 ;;----------------------------------------------------------------------------------------------------
 
 
@@ -339,6 +336,7 @@
 ;;----------------------------------------------------------------------------------------------------
 
 
+;;mutates one single player
 ;;;posicion, visita o local? ,indice inicial en 1,indice a modificar (1 a 5)
 (define (mutate-player player posicion local-visita index index-modify)
   (cond
@@ -449,44 +447,54 @@
   )
 
 )
+
+;;mutates a list of players
+(define (mutate-players players posicion local-visita)
+  (
+    cond
+    (
+      (null? players)
+      '()
+    )
+    (
+      else
+      (
+        cons 
+        (mutate-player (car players) posicion local-visita 1 (random 6)) 
+        (mutate-players (cdr players) posicion local-visita)
+      )
+    )
+  )
+)
+
+(define (mutate population local-visita)
+  (
+    list
+    (car population)
+    (mutate-players (cadr population) 1 local-visita)
+    (mutate-players (caddr population) 2 local-visita)
+    (mutate-players (cadddr population) 3 local-visita)
+  )
+)
 ;;limites horizontales: [22-170], [171-468], [469-618] 
 ;;397y x596
 ;;limite vertical [14-411]
 
-;;encuentra la cantidad de digitos que tiene un numero
-(define (digit-num num)
-  (
-    cond
-    (
-      (zero? num)
-      0
-    )
-    (
-      else
-      (+ 1 (digit-num (quotient num 10)))
-    )
-  )
-)
 
-;;(digit-num 900000)
 ;;----------------------------------------------------------------------------------------------------
-
-;;(fitness (poblacion_inicial '(3 5 2)))
-
 
 ;;GENETICO
 
 ;;genera una nueva poblacion usando la actual generacion, unida al crossover y la mutacion de la misma
+
+
 (define (new_population generacion casa)
   (append 
     (list (car generacion))
-    (list (append (cadr generacion) (cadr (crossover generacion casa))))
-    (list (append (caddr generacion) (caddr (crossover generacion casa))))
-    (list (append (cadddr generacion) (cadddr (crossover generacion casa))))
+    (list (append (cadr generacion) (cadr (crossover generacion casa)) (cadr (mutate generacion casa))))
+    (list (append (caddr generacion) (caddr (crossover generacion casa)) (caddr (mutate generacion casa))))
+    (list (append (cadddr generacion) (cadddr (crossover generacion casa)) (cadddr (mutate generacion casa))))
   )
-)
-(define (genetico locales visita n-generaciones)
-  (genetico-aux locales visita n-generaciones 0 '() '())
 )
 
 ;;argumentos:
@@ -520,13 +528,11 @@
        (append visita-gen (list (fitness (new_population (n-esimo (largo visita-gen) visita-gen ) 0) 0))))
     )
   )
-
-  
-  
-
 )
-;;defensa, visita ,indice inicial en 1,modifica x(indice 1)
-;;(mutate-player '(617 364 10 2 7) 1 0 1 3)
+
+(define (genetico locales visita n-generaciones)
+  (genetico-aux locales visita n-generaciones 0 '() '())
+)
+
 ;;(genetico '(4 4 2) '(3 3 4) 3)
 
-;;(new_population '((3 5 2) ((133 112 7 0 5) (133 400 8 4 6) (59 256 6 4 0)) ((208 400 6 6 9) (319 40 6 7 9) (282 256 2 6 5) (208 400 9 6 5) (430 148 4 9 5)) ((208 400 9 6 5) (430 148 4 9 5))) 1)
