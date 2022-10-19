@@ -106,7 +106,7 @@
           alineacion
           (select-cuantity  (car alineacion) (quicksort  (car poblacion) 1) '())
           (select-cuantity  (cadr alineacion) (quicksort  (cadr poblacion) 2) '())
-          (select-cuantity  (caddr alineacion) (quicksort  (cadr poblacion) 3) '())
+          (select-cuantity  (caddr alineacion) (quicksort  (caddr poblacion) 3) '())
         )
       )
       (
@@ -115,7 +115,7 @@
           alineacion
           (select-cuantity  (car alineacion) (quicksort  (car poblacion) 3) '())
           (select-cuantity  (cadr alineacion) (quicksort  (cadr poblacion) 2) '())
-          (select-cuantity  (caddr alineacion) (quicksort  (cadr poblacion) 1) '())
+          (select-cuantity  (caddr alineacion) (quicksort  (caddr poblacion) 1) '())
         )
       )
     )
@@ -338,37 +338,120 @@
 ;;MUTATION
 ;;----------------------------------------------------------------------------------------------------
 
-#|
-(define (mutate population)
-  (list
-  (mutate-per-position (car population))
-  )
-)
-|#
 
-;;jugadores->lista de jugadores
-;;posicion-> 1: defensa, 2:medio, 3: delantero
-#|
-(define (mutate-per-position jugadores posicion)
-  (
-    cond
+;;;posicion, visita o local? ,indice inicial en 1,indice a modificar (1 a 5)
+(define (mutate-player player posicion local-visita index index-modify)
+  (cond
     (
-      (null? jugadores)
+      (null? player)
       '()
     )
     (
+      ;;llega al valor a modificar
+      (equal? index index-modify)
+      (
+        cond
+        ;; es una coordenada
+        (
+          ;;es la coordenada x
+          (equal? index-modify 1)
+          (
+            cond
+            (
+              ;;es  delantero y visita o defensa y local 
+              (or (and (equal? posicion 3) (equal? local-visita 0)) (and (equal? posicion 1) (equal? local-visita 1)))
+              (
+                cond
+                ( 
+                  ;;si esta dentro del rango horizontal lo aumenta en 37 (una unidad de la)
+                  (<= (+ 37 (car player)) 170 )
+                  (cons (+ 37 (car player)) (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
+                )
+                (
+                  else
+                  ;;si no lo devuelve al inicio del rango
+                  (cons 22 (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
+                )
+              )
+            )
+            (
+              ;;es delantero y local o defensa y visita 
+              (or (and (equal? posicion 3) (equal? local-visita 1)) (and (equal? posicion 1) (equal? local-visita 0)))
+              (
+                cond
+                ( 
+                  ;;si esta dentro del rango horizontal lo aumenta en 37 (una unidad de la)
+                  (<= (+ 37 (car player)) 618 )
+                  (cons (+ 37 (car player)) (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
+                )
+                (
+                  else
+                  ;;si no lo devuelve al inicio del rango
+                  (cons 469 (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
+                )
+              )
+            )
+            (
+              ;;es medio campista 
+              (equal? posicion 2)
+              (
+                cond
+                ( 
+                  ;;si esta dentro del rango horizontal lo aumenta en 37 (una unidad de la)
+                  (<= (+ 37 (car player)) 468 )
+                  (cons (+ 37 (car player)) (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
+                )
+                (
+                  else
+                  ;;si no lo devuelve al inicio del rango
+                  (cons 171 (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
+                )
+              )
+            )
+
+          )
+        )
+
+        (
+          ;;es la coordenada y
+          (equal? index-modify 2)
+          (
+            cond
+            (
+              (<= (+ 36 (car player)) 411)
+              (cons (+ 36 (car player)) (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
+            )
+          )
+        )
+        (
+          ;;es alguna habilidad
+          else
+          (
+            cond
+            (
+              (<= (+ 1 (car player)) 10)
+              (cons (+ 1 (car player)) (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
+            )
+            (
+              else
+              (cons 0 (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
+            )
+
+          )
+        )
+      )
+    )
+
+    (
       else
-      (cons (mutate-individual posicion (random 6) 0) (mutate-per-position (cdr jugadores) posicion))
+      (cons (car player) (mutate-player (cdr player) posicion local-visita (+ 1 index) index-modify))
     )
   )
-)
-|#
-#|
-(define (mutate-individual jugador posicion index-to-modify index)
 
 )
-
-|#
+;;limites horizontales: [22-170], [171-468], [469-618] 
+;;397y x596
+;;limite vertical [14-411]
 
 ;;encuentra la cantidad de digitos que tiene un numero
 (define (digit-num num)
@@ -399,25 +482,30 @@
     (list (car generacion))
     (list (append (cadr generacion) (cadr (crossover generacion casa))))
     (list (append (caddr generacion) (caddr (crossover generacion casa))))
-    (list (append (caddr generacion) (caddr (crossover generacion casa))))
+    (list (append (cadddr generacion) (cadddr (crossover generacion casa))))
   )
 )
 (define (genetico locales visita n-generaciones)
   (genetico-aux locales visita n-generaciones 0 '() '())
 )
 
+;;argumentos:
+;;locales->alineacion de locales
+;;visita-> alineacion de visita
+;;
 (define (genetico-aux locales visita n-generaciones curr-gen local-gen visita-gen)
   (
     cond
     (
-      (equal? (n-generaciones) curr-gen)
+      (equal? n-generaciones curr-gen)
       (list local-gen visita-gen)
     )
     (
-      (zero? curr-gen)
+      (zero? curr-gen) ;;poblacion 0
       (genetico-aux 
         locales visita 
-        n-generaciones (+ 1 curr-gen) 
+        n-generaciones 
+        (+ 1 curr-gen) 
         (append local-gen (list (fitness (poblacion_inicial locales 1) 1))) 
         (append local-gen (list (fitness (poblacion_inicial visita 0) 0)))
       )
@@ -428,7 +516,7 @@
        locales visita 
        n-generaciones 
        (+ 1 curr-gen) 
-       (append local-gen (list (fitness (new_population (n-esimo (largo local-gen) local-gen ) 1) 1))) 
+       (append local-gen (list (fitness (new_population (n-esimo (largo local-gen) local-gen ) 1) 1))) ;;agrega nuevas generaciones
        (append visita-gen (list (fitness (new_population (n-esimo (largo visita-gen) visita-gen ) 0) 0))))
     )
   )
@@ -437,7 +525,8 @@
   
 
 )
-
-(genetico '(4 4 2) '(3 3 4) 2)
+;;defensa, visita ,indice inicial en 1,modifica x(indice 1)
+;;(mutate-player '(617 364 10 2 7) 1 0 1 3)
+;;(genetico '(4 4 2) '(3 3 4) 3)
 
 ;;(new_population '((3 5 2) ((133 112 7 0 5) (133 400 8 4 6) (59 256 6 4 0)) ((208 400 6 6 9) (319 40 6 7 9) (282 256 2 6 5) (208 400 9 6 5) (430 148 4 9 5)) ((208 400 9 6 5) (430 148 4 9 5))) 1)
