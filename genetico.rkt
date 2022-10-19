@@ -41,8 +41,9 @@
     )
 )
 ;;supone cancha de 80px de largo, iniciando en pixel 22 y  55px de ancho
-;;limites horizontales: [0-19], [20-59], [60-79] 
-;;limite vertical [0-54]
+;;limites horizontales: [22-170], [171-468], [469-618] 
+;;397y x596
+;;limite vertical [14-411]
 (define (random-coords position)
     (
         cond
@@ -50,23 +51,23 @@
         (
             ;;defensas
             (equal? position 1)
-            (list (+ 22 (* 5 (random (/ 20 5)))) (* 5 (random (/ 55 5))))
+            (list (+ 22 (* 37 (random (round (/ (/ 596 4) 37))))) (+ 40 (* 36 (random (quotient 397 36)))))
         )
         
         (
             ;;mediocampistas
             (equal? position 2)
-            (list (+ 42 (* 5 (random (/ 40 5)))) (* 5 (random (/ 55 5))))
+            (list (+ (+ 22 (/ 596 4)) (* 37 (random (round (/ (/ 596 2) 37))))) (+ 40 (* 36 (random (quotient 397 36)))))
         )
         (
             ;;delanteros
             (equal? position 3)
-            (list (+ 82 (* 5 (random (/ 20 5)))) (* 5 (random (/ 55 5))))
+            (list (+ (+ 22 (/ 596 4) (/ 596 2)) (* 37 (random (round (/ (/ 596 4) 37))))) (+ 40 (* 36 (random (quotient 397 36)))))
         )
     )
    
 )
-
+(poblacion_inicial '(4 4 2))
 ;;----------------------------------------------------------------------------------------------------
 
 
@@ -263,12 +264,34 @@
 ;;(crossover-perposition '((22 10 2 9 7) (22 15 4 6 4) (22 30 10 4 4) (22 35 7 0 4)) 1)
 
 
-(crossover '(((22 10 2 9 7) (22 15 4 6 4) (22 30 10 4 4) (22 35 7 0 4)) ((42 0 0 7 0) (42 25 5 8 5) (77 35 6 8 6) (57 40 5 7 9)) ((52 45 7 1 9) (57 40 5 7 9))))
+;;(crossover '(((22 10 2 9 7) (22 15 4 6 4) (22 30 10 4 4) (22 35 7 0 4)) ((42 0 0 7 0) (42 25 5 8 5) (77 35 6 8 6) (57 40 5 7 9)) ((52 45 7 1 9) (57 40 5 7 9))))
 ;;----------------------------------------------------------------------------------------------------
 
 
 ;;MUTATION
 ;;----------------------------------------------------------------------------------------------------
 
+#|
+(define (mutate population)
+  (list
+  (mutate-per-position (car population))
+  )
+)
+|#
 
+(define (digit-num num)
+  (
+    cond
+    (
+      (zero? num)
+      0
+    )
+    (
+      else
+      (+ 1 (digit-num (quotient num 10)))
+    )
+  )
+)
+
+;;(digit-num 900000)
 ;;----------------------------------------------------------------------------------------------------
