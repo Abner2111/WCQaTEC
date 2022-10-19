@@ -56,11 +56,11 @@
              [label "prueba"]
              [callback (lambda (button event)
                          (set! scoreTeam1 (+ scoreTeam1 1))
-                         (newpos players coords) 
-                         (send canvas refresh-now)
+                         (newpos players (coord-to-mat (car (cdr coods2))))
                          )
-                       ]
-             )
+                         
+                ]
+)
 
 ; Class for players
 
@@ -71,12 +71,13 @@
     (init x y)
 
     ; Se definen los atributos
-    (define xPos x)
-    (define yPos y)
+    (define xPos (mat-to-cordx x)) ; coordenada x para las imagenes
+    (define yPos (mat-to-cordy y)) ; coordenada y para las imagenes
+    (define matx x) ; Numero de fila en la matriz 
+    (define maty y) ; Numero de columna en la matriz 
     (define aim 0)
     (define speed 0)
     (define block 0)
-    (define rectangulo 0) 
 
     (super-new)
 
@@ -85,24 +86,27 @@
     ; ---> getters
     (define/public (get-xpos) xPos)
     (define/public (get-ypos) yPos)
+    (define/public (get-xmat) matx)
+    (define/public (get-ymat) maty)
     (define/public (get-aim) aim)
     (define/public (get-speed) speed)
     (define/public (get-block) block)
-    (define/public (get-rec) rectangulo)
 
     ; ---> setters
     (define/public (set-xpos newX)
       (set! xPos newX))
     (define/public (set-ypos newY)
       (set! yPos newY))
+    (define/public (set-xmat newX)
+      (set! matx newX))
+    (define/public (set-ymat newY)
+      (set! maty newY))
     (define/public (set-aim newAim)
       (set! aim newAim))
     (define/public (set-speed newSpeed)
       (set! speed newSpeed))
     (define/public (set-block newBlock)
       (set! block newBlock))
-    (define/public (move x y dc)
-      (send dc translate x y))
   ))
 
 ;Class for ball
@@ -139,9 +143,6 @@
       (set! xIni newXfin)
       (set! yIni newYfin))
     ))
-    
-
-    
 
 ; Crea las posiciones iniciales de todos los jugadores 
 (define (posiniciales listajugs listacoord canvas)
@@ -158,13 +159,11 @@
   (cond ((or (null? listacoord) (null? listajugs))
          '())
         (else
-         (ani (car listajugs) (caar listacoord) (cadr (car listacoord)))
-         (newpos (cdr listajugs) (cdr listacoord)))))
+          (moveObj (car listajugs) (caar listacoord) (cadr (car listacoord)))
+          (newpos (cdr listajugs) (cdr listacoord)))))
         
-        
-  
 ; Cambia las coordenadas para la animacion HACER HILOS
-
+#|
 (define (animation player xNewPos yNewPos)
   (cond
     ((and (equal? (send player get-xpos)  xNewPos) (equal? (send player get-ypos) yNewPos)) 0)
@@ -205,64 +204,202 @@
     )
   )
 )
+|#
 
-(define (ani player xNewPos yNewPos)
+(define (animation player xNewPos yNewPos)
+  
+  (sleep/yield 0.005)
+  (send canvas refresh-now)
+ 
   (cond
     ((and (equal? (send player get-xpos)  xNewPos) (not (equal? (send player get-ypos) yNewPos)))
      (cond
        ((> (send player get-ypos) yNewPos)
-        (send player set-ypos (- (send player get-ypos) 1))
-        (send canvas refresh-now)
-        (ani player xNewPos yNewPos))
+        (send player set-ypos (- (send player get-ypos) 5))
+        ;(send canvas refresh-now)
+        ;(sleep 0.02)
+        (animation player xNewPos yNewPos))
        
        ((< (send player get-ypos) yNewPos)
-        (send player set-ypos (+ (send player get-ypos) 1))
-        (send canvas refresh-now)
-        (ani player xNewPos yNewPos))
+        (send player set-ypos (+ (send player get-ypos) 5))
+        ;(send canvas refresh-now)
+        ;(sleep 0.02)
+        (animation player xNewPos yNewPos))
        )
      )
      ((and (not(equal? (send player get-xpos)  xNewPos)) (equal? (send player get-ypos) yNewPos))
      (cond
        ((> (send player get-xpos) xNewPos)
-        (send player set-xpos (- (send player get-xpos) 1))
-        (send canvas refresh-now)
-        (ani player xNewPos yNewPos))
+        (send player set-xpos (- (send player get-xpos) 5))
+        ;(send canvas refresh-now)
+        ;(sleep 0.02)
+        (animation player xNewPos yNewPos))
        
        ((< (send player get-xpos) xNewPos)
-        (send player set-xpos (+ (send player get-xpos) 1))
-        (send canvas refresh-now)
-        (ani player xNewPos yNewPos))
+        (send player set-xpos (+ (send player get-xpos) 5))
+        ;(send canvas refresh-now)
+        ;(sleep 0.02)
+        (animation player xNewPos yNewPos))
        )
      )
     ((and (equal? (send player get-xpos)  xNewPos) (equal? (send player get-ypos) yNewPos)) 0)
     ((and (> (send player get-xpos)  xNewPos) (> (send player get-ypos) yNewPos))
-      (send player set-xpos (- (send player get-xpos) 1))
-      (send player set-ypos (- (send player get-ypos) 1))
-      (send canvas refresh-now)
-      (ani player xNewPos yNewPos)  
+      (send player set-xpos (- (send player get-xpos) 5))
+      (send player set-ypos (- (send player get-ypos) 5))
+      ;(send canvas refresh-now)
+      ;(sleep 0.02)
+      (animation player xNewPos yNewPos)  
     )
 
 
     ((and (< (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
-      (send player set-xpos (+ (send player get-xpos) 1))
-      (send player set-ypos (+ (send player get-ypos) 1))
-      (send canvas refresh-now)
-      (ani player xNewPos yNewPos)
+      (send player set-xpos (+ (send player get-xpos) 5))
+      (send player set-ypos (+ (send player get-ypos) 5))
+      ;(send canvas refresh-now)
+      ;(sleep 0.02)
+      (animation player xNewPos yNewPos)
     )
 
     ((and (< (send player get-xpos)  xNewPos ) (> (send player get-ypos) yNewPos))
-      (send player set-xpos (+ (send player get-xpos) 1))
-      (send player set-ypos (- (send player get-ypos) 1))
-      (send canvas refresh-now)
-      (ani player xNewPos yNewPos)
+      (send player set-xpos (+ (send player get-xpos) 5))
+      (send player set-ypos (- (send player get-ypos) 5))
+      ;(send canvas refresh-now)
+      ;(sleep 0.02)
+      (animation player xNewPos yNewPos)
     )
 
     ((and (> (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
-      (send player set-xpos (- (send player get-xpos) 1))
-      (send player set-ypos (+ (send player get-ypos) 1))
-      (send canvas refresh-now)
-      (ani player xNewPos yNewPos)
+      (send player set-xpos (- (send player get-xpos) 5))
+      (send player set-ypos (+ (send player get-ypos) 5))
+      ;(send canvas refresh-now)
+      ;(sleep 0.02)
+      (animation player xNewPos yNewPos)
     ) 
+    
+    (else
+      0
+    )
+  )
+)
+
+; convierte las coordenadas del algoritmo genetico a numeros de la matriz 
+(define (coord-to-mat listCoords)
+  (cond
+    ((null? listCoords) '())
+    (else (append (list (list (/ (+ (caar listCoords) 15) 37) (/ (- (cadar listCoords) 4) 36))) (coord-to-mat (cdr listCoords)))
+    )
+  )
+)
+
+; convierte las coordenadas en la fila de matriz
+(define (cord-to-matx cord)
+ (/ (+ cord 15) 37)
+)
+
+; convierte las coordenadas en la columna de matriz
+(define (cord-to-maty cord)
+ (/ (- cord 4) 36)
+)
+
+; convierte la fila de matriz en las coordenadas 
+(define (mat-to-cordx mat)
+  (+ (* (- mat 1) 37) 22)
+)
+
+; convierte la columna de matriz en las coordenadas 
+(define (mat-to-cordy mat)
+  (+ (* (- mat 1) 36) 40)
+)
+
+(define (moveObj obj xNewPos yNewPos) ; x numero mat y numero mat
+  
+  (sleep/yield 0.2)
+  (send canvas refresh-now)
+ 
+  (cond
+    ((and (equal? (send obj get-xmat) xNewPos) (not (equal? (send obj get-ymat) yNewPos)))
+     (cond
+       ((> (send obj get-ymat) yNewPos)
+        (send obj set-ymat (- (send obj get-ymat) 1))
+        (send obj set-ypos (mat-to-cordy (send obj get-ymat)))
+        (moveObj obj xNewPos yNewPos))
+       
+       ((< (send obj get-ypos) (mat-to-cordy yNewPos))
+        (send obj set-ymat (+ (send obj get-ymat) 1))
+        (send obj set-ypos (mat-to-cordy (send obj get-ymat)))
+        (moveObj obj xNewPos yNewPos))
+       )
+     )
+     ((and (not(equal? (send obj get-xmat)  xNewPos)) (equal? (send obj get-ymat)  yNewPos))
+     (cond
+       ((> (send obj get-xmat)  xNewPos)
+        (send obj set-xmat (- (send obj get-xmat) 1))
+        (send obj set-xpos (mat-to-cordx (send obj get-xmat)))
+        (moveObj obj xNewPos yNewPos))
+       
+       ((< (send obj get-xmat)  xNewPos)
+        (send obj set-xmat (+ (send obj get-xmat) 1))
+        (send obj set-xpos (mat-to-cordx (send obj get-xmat)))
+        (moveObj obj xNewPos yNewPos))
+       )
+     )
+
+     ; condicion de Stop
+    ((and (equal? (send obj get-xmat)  xNewPos) (equal? (send obj get-ymat)  yNewPos)) 0)
+
+    ; XY nuevas menor a las viejas
+    ((and (> (send obj get-xmat) xNewPos) (> (send obj get-ymat) yNewPos))
+
+      ; correcion en x
+      (send obj set-xmat (- (send obj get-xmat) 1))
+      (send obj set-xpos (mat-to-cordx (send obj get-xmat)))
+
+      ; correcion en y
+      (send obj set-ymat (- (send obj get-ymat) 1))
+      (send obj set-ypos (mat-to-cordy (send obj get-ymat)))
+
+      (moveObj obj xNewPos yNewPos)  
+    )
+    ; XY nuevas mayor a las viejas
+    ((and (< (send obj get-xmat)  xNewPos) (< (send obj get-ymat) yNewPos))
+
+      ;correcion en x
+      (send obj set-xmat (+ (send obj get-xmat) 1))
+      (send obj set-xpos (mat-to-cordx (send obj get-xmat)))
+
+      ;correcion en y
+      (send obj set-ymat (+ (send obj get-ymat) 1))
+      (send obj set-ypos (mat-to-cordy (send obj get-ymat)))
+
+      (moveObj obj xNewPos yNewPos)
+    )
+
+    ((and (< (send obj get-xmat) xNewPos) (> (send obj get-ymat) yNewPos))
+
+      ;correcion en x
+      (send obj set-xmat (+ (send obj get-xmat) 1))
+      (send obj set-xpos (mat-to-cordx (send obj get-xmat)))
+
+      ; correcion en y
+      (send obj set-ymat (- (send obj get-ymat) 1))
+      (send obj set-ypos (mat-to-cordy (send obj get-ymat)))
+
+      (moveObj obj xNewPos yNewPos)
+    )
+
+    ((and (> (send obj get-xmat)  xNewPos ) (< (send obj get-ymat) yNewPos))
+
+      ; correcion en x
+      (send obj set-xmat (- (send obj get-xmat) 1))
+      (send obj set-xpos (mat-to-cordx (send obj get-xmat)))
+
+      ;correcion en y
+      (send obj set-ymat (+ (send obj get-ymat) 1))
+      (send obj set-ypos (mat-to-cordy (send obj get-ymat)))
+
+      (moveObj obj xNewPos yNewPos)
+    ) 
+
     (else
       0
     )
@@ -270,49 +407,64 @@
 )
 
 ; jugadores ----------------------------------------------------------
-(define CRC1 (new player% (x 320) (y 10)))
-(define CRC2 (new player% (x 320) (y 10)))
-(define CRC3 (new player% (x 320) (y 10)))
-(define CRC4 (new player% (x 320) (y 10)))
-(define CRC5 (new player% (x 320) (y 10)))
-(define CRC6 (new player% (x 320) (y 10)))
-(define CRC7 (new player% (x 320) (y 10)))
-(define CRC8 (new player% (x 320) (y 10)))
-(define CRC9 (new player% (x 320) (y 10)))
-(define CRC10 (new player% (x 320) (y 10)))
-(define CRC11 (new player% (x 320) (y 10)))
-(define BRA1 (new player% (x 360) (y 10)))
-(define BRA2 (new player% (x 360) (y 10)))
-(define BRA3 (new player% (x 360) (y 10)))
-(define BRA4 (new player% (x 360) (y 10)))
-(define BRA5 (new player% (x 360) (y 10)))
-(define BRA6 (new player% (x 360) (y 10)))
-(define BRA7 (new player% (x 360) (y 10)))
-(define BRA8 (new player% (x 360) (y 10)))
-(define BRA9 (new player% (x 360) (y 10)))
-(define BRA10 (new player% (x 360) (y 10)))
-(define BRA11 (new player% (x 360) (y 10)))
+(define CRC1 (new player% (x 2) (y 1)))
+(define CRC2 (new player% (x 2) (y 2)))
+(define CRC3 (new player% (x 2) (y 3)))
+(define CRC4 (new player% (x 2) (y 4)))
+(define CRC5 (new player% (x 2) (y 5)))
+(define CRC6 (new player% (x 2) (y 6)))
+(define CRC7 (new player% (x 2) (y 7)))
+(define CRC8 (new player% (x 2) (y 8)))
+(define CRC9 (new player% (x 2) (y 9)))
+(define CRC10 (new player% (x 2) (y 10)))
+(define CRC11 (new player% (x 2) (y 11)))
+(define BRA1 (new player% (x 7) (y 1)))
+(define BRA2 (new player% (x 7) (y 2)))
+(define BRA3 (new player% (x 7) (y 3)))
+(define BRA4 (new player% (x 7) (y 4)))
+(define BRA5 (new player% (x 7) (y 5)))
+(define BRA6 (new player% (x 7) (y 6)))
+(define BRA7 (new player% (x 7) (y 7)))
+(define BRA8 (new player% (x 7) (y 8)))
+(define BRA9 (new player% (x 7) (y 9)))
+(define BRA10 (new player% (x 7) (y 10)))
+(define BRA11 (new player% (x 7) (y 11)))
 
 
 
 ; pruebas ----------------------------------------------------------
 
 (define players (list CRC1 CRC2 CRC3 CRC4 CRC5 CRC6 CRC7 CRC8 CRC9 CRC10 CRC11 BRA1 BRA2 BRA3 BRA4 BRA5 BRA6 BRA7 BRA8 BRA9 BRA10 BRA11))
-(define coords (list (list 50 50) (list 654 200) 
-                     (list 50 80) (list 456 200)
-                     (list 465 50) (list 450 234)
-                     (list 50 657) (list 254 200)
-                     (list 23 50) (list 450 12)
-                     (list 50 345) (list 32 200)
-                     (list 345 50) (list 450 46)
-                     (list 50 123) (list 234 200)
-                     (list 245 50) (list 450 333)
-                     (list 50 555) (list 222 200)
-                     (list 267 50) (list 450 111))
+(define coords (list (list 50 50) (list 50 50) 
+                     (list 50 50) (list 50 50)
+                     (list 50 50) (list 50 50)
+                     (list 50 50) (list 50 50)
+                     (list 50 50) (list 50 50)
+                     (list 50 50) (list 50 50)
+                     (list 50 50) (list 50 50)
+                     (list 50 50) (list 50 50)
+                     (list 50 50) (list 50 50)
+                     (list 50 50) (list 50 50)
+                     (list 50 50) (list 50 50))
   
   )
 
+
+(define coods2 (list (list 3 5 2)  
+(list (list 133 112 1 1 1) (list 133 112 1 1 1) 
+(list 133 112 1 1 1) (list 133 112 1 1 1)  
+(list 133 112 1 1 1) (list 133 112 1 1 1) 
+(list 133 112 1 1 1) (list 133 112 1 1 1) 
+(list 133 112 1 1 1) (list 133 112 1 1 1) 
+(list 133 112 1 1 1) (list 133 112 1 1 1) 
+(list 133 112 1 1 1) (list 133 112 1 1 1) 
+(list 133 112 1 1 1) (list 133 112 1 1 1) 
+(list 133 112 1 1 1) (list 133 112 1 1 1) 
+(list 133 112 1 1 1) (list 133 112 1 1 1) 
+(list 133 112 1 1 1) (list 133 112 1 1 1))))
+
+
 (send frame show #t)
 
- 
+
 
