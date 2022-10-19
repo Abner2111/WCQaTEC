@@ -58,9 +58,9 @@
              [callback (lambda (button event)
                          ;(set! scoreTeam1 (+ scoreTeam1 1))
                          ;(newpos players coords)
-                         (ani Ball 615 224)
+                         (animball Ball 200 392)
                          (send canvas refresh-now)
-                         ;(collisionBL Ball)
+                         (collisionBL Ball)
                          (collisionBM Ball)
                          )
                        ]
@@ -178,6 +178,8 @@
 ; Cambia las coordenadas para la animacion HACER HILOS
 
 (define (ani player xNewPos yNewPos)
+  (sleep/yield 0.005)
+  (send canvas refresh-now)
 ;(cond (equal? (send player get-tag) "player"))
   ;(collisionBL Ball xNewPos yNewPos)
   (collisionBM Ball)
@@ -186,12 +188,10 @@
      (cond
        ((> (send player get-ypos) yNewPos) ;si ya llego a x, solo se mueve en y
         (send player set-ypos (- (send player get-ypos) 1))
-        (send canvas refresh-now)
         (ani player xNewPos yNewPos))
        
        ((< (send player get-ypos) yNewPos)
         (send player set-ypos (+ (send player get-ypos) 1))
-        (send canvas refresh-now)
         (ani player xNewPos yNewPos))
        )
      )
@@ -199,12 +199,10 @@
      (cond
        ((> (send player get-xpos) xNewPos)
         (send player set-xpos (- (send player get-xpos) 1))
-        (send canvas refresh-now)
         (ani player xNewPos yNewPos))
        
        ((< (send player get-xpos) xNewPos)
         (send player set-xpos (+ (send player get-xpos) 1))
-        (send canvas refresh-now)
         (ani player xNewPos yNewPos))
        )
      )
@@ -212,7 +210,6 @@
     ((and (> (send player get-xpos)  xNewPos) (> (send player get-ypos) yNewPos))
       (send player set-xpos (- (send player get-xpos) 1))
       (send player set-ypos (- (send player get-ypos) 1))
-      (send canvas refresh-now)
       (ani player xNewPos yNewPos)  
     )
 
@@ -220,21 +217,18 @@
     ((and (< (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
       (send player set-xpos (+ (send player get-xpos) 1))
       (send player set-ypos (+ (send player get-ypos) 1))
-      (send canvas refresh-now)
       (ani player xNewPos yNewPos)
     )
 
     ((and (< (send player get-xpos)  xNewPos ) (> (send player get-ypos) yNewPos))
       (send player set-xpos (+ (send player get-xpos) 1))
       (send player set-ypos (- (send player get-ypos) 1))
-      (send canvas refresh-now)
       (ani player xNewPos yNewPos)
     )
 
     ((and (> (send player get-xpos)  xNewPos ) (< (send player get-ypos) yNewPos))
       (send player set-xpos (- (send player get-xpos) 1))
       (send player set-ypos (+ (send player get-ypos) 1))
-      (send canvas refresh-now)
       (ani player xNewPos yNewPos)
     )
     (else
@@ -243,11 +237,71 @@
   )
 )
 
+(define (animball ball xNewPos yNewPos)
+;(cond (equal? (send ball get-tag)  ball"))  
+  (sleep/yield 0.005)
+  (send canvas refresh-now)
+  (collisionBM Ball)
+  (collisionBL Ball xNewPos yNewPos)
+  (cond
+    ((and (equal? (send ball get-xpos)  xNewPos) (not (equal? (send ball get-ypos) yNewPos))) ;si ya llego a la pos x y si no ha llegado a la pos y
+     (cond
+       ((> (send ball get-ypos) yNewPos) ;si ya llego a x, solo se mueve en y
+        (send ball set-ypos (- (send ball get-ypos) 1))
+        (animball ball xNewPos yNewPos))
+       
+       ((< (send ball get-ypos) yNewPos)
+        (send ball set-ypos (+ (send ball get-ypos) 1))
+        (animball ball xNewPos yNewPos))
+       )
+     )
+     ((and (not(equal? (send ball get-xpos)  xNewPos)) (equal? (send ball get-ypos) yNewPos))
+     (cond
+       ((> (send ball get-xpos) xNewPos)
+        (send ball set-xpos (- (send ball get-xpos) 1))
+        (animball ball xNewPos yNewPos))
+       
+       ((< (send ball get-xpos) xNewPos)
+        (send ball set-xpos (+ (send ball get-xpos) 1))
+        (animball ball xNewPos yNewPos))
+       )
+     )
+    ((and (equal? (send ball get-xpos)  xNewPos) (equal? (send ball get-ypos) yNewPos)) 0)
+    ((and (> (send ball get-xpos)  xNewPos) (> (send ball get-ypos) yNewPos))
+      (send ball set-xpos (- (send ball get-xpos) 1))
+      (send ball set-ypos (- (send ball get-ypos) 1))
+      (animball ball xNewPos yNewPos)  
+    )
+
+
+    ((and (< (send ball get-xpos)  xNewPos ) (< (send ball get-ypos) yNewPos))
+      (send ball set-xpos (+ (send ball get-xpos) 1))
+      (send ball set-ypos (+ (send ball get-ypos) 1))
+      (animball ball xNewPos yNewPos)
+    )
+
+    ((and (< (send ball get-xpos)  xNewPos ) (> (send ball get-ypos) yNewPos))
+      (send ball set-xpos (+ (send ball get-xpos) 1))
+      (send ball set-ypos (- (send ball get-ypos) 1))
+      (animball ball xNewPos yNewPos)
+    )
+
+    ((and (> (send ball get-xpos)  xNewPos ) (< (send ball get-ypos) yNewPos))
+      (send ball set-xpos (- (send ball get-xpos) 1))
+      (send ball set-ypos (+ (send ball get-ypos) 1))
+      (animball ball xNewPos yNewPos)
+    )
+    (else
+      0
+    )
+  )
+)
+
+
 (define (collisionBL ball xNewPos yNewPos) ;colision bola-limites cancha
   (cond ((equal? (send ball get-ypos) 392 ) ;limite inferior
         ;;(send ball set-ypos (* (send ball get-ypos) 1))
         ;;(send ball set-xpos (* (send ball get-xpos) -1))
-        ;(ani ball xNewPos (- 500 (- yNewPos 392)))
         (print "inf"))
         ;(send canvas refresh-now))
         ((equal? (send ball get-ypos) 14);limite superior
@@ -263,10 +317,11 @@
          ((equal? (send ball get-xpos) 22) ;limite izquierdo
           ;(send ball set-ypos (* (send ball get-ypos) -1))
           ;(send ball set-xpos (* (send ball get-xpos) 1)))
-        (send canvas refresh-now)
+        ;(send canvas refresh-now)
           (print "izq"))
          )
   )
+
 
 (define (collisionBM ball) ;colision bola-marco
   (cond ((and (equal? (send ball get-xpos) 25) ;marco izquierdo
