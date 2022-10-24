@@ -1,10 +1,12 @@
 #lang racket/gui
 
 (require racket/gui/base)
+(require "genetico.rkt")
 
 ; Se define las variables del marcador
 (define scoreTeam1 0)
 (define scoreTeam2 0)
+(define genCount 0)
 
 ; Creates window frame
 (define frame (new frame%
@@ -45,7 +47,7 @@
                 (send dc draw-bitmap(read-bitmap "Resources/BRA11.png") (send BRA11 get-xpos) (send BRA11 get-ypos))
                 
                 ; coloca el texto del marcador
-                (send dc draw-text (~a "CRC  " scoreTeam1 " BRA  " scoreTeam2) 10 5)
+                (send dc draw-text (~a "CRC  " scoreTeam1 " BRA  " scoreTeam2 "                                Generación: " genCount) 10 5)
                 )
               ]
              )
@@ -286,7 +288,7 @@
 (define (coord-to-mat listCoords)
   (cond
     ((null? listCoords) '())
-    (else (append (list (list (/ (+ (caar listCoords) 15) 37) (/ (- (cadar listCoords) 4) 36))) (coord-to-mat (cdr listCoords)))
+    (else (append (list (list  (/ (+ (caar listCoords) 15) 37) (/ (- (cadar listCoords) 4) 36))) (coord-to-mat (cdr listCoords)))
     )
   )
 )
@@ -451,20 +453,68 @@
 
 
 (define coods2 (list (list 3 5 2)  
-(list (list 133 112 1 1 1) (list 133 112 1 1 1) 
-(list 133 112 1 1 1) (list 133 112 1 1 1)  
-(list 133 112 1 1 1) (list 133 112 1 1 1) 
-(list 133 112 1 1 1) (list 133 112 1 1 1) 
-(list 133 112 1 1 1) (list 133 112 1 1 1) 
-(list 133 112 1 1 1) (list 133 112 1 1 1) 
-(list 133 112 1 1 1) (list 133 112 1 1 1) 
-(list 133 112 1 1 1) (list 133 112 1 1 1) 
-(list 133 112 1 1 1) (list 133 112 1 1 1) 
-(list 133 112 1 1 1) (list 133 112 1 1 1) 
-(list 133 112 1 1 1) (list 133 112 1 1 1))))
+                    (list (list 22 184 1 1 1) (list 96 112 1 1 1) 
+                    (list 96 220 1 1 1) (list 96 292 1 1 1)  
+                    (list 96 364 1 1 1) (list 244 112 1 1 1) 
+                    (list 244 184 1 1 1) (list 244 256 1 1 1) 
+                    (list 244 328 1 1 1) (list 429 112 1 1 1) 
+                    (list 429 256 1 1 1) (list 577 220 1 1 1) 
+                    (list 503 112 1 1 1) (list 503 184 1 1 1) 
+                    (list 503 256 1 1 1) (list 318 112 1 1 1) 
+                    (list 318 292 1 1 1) (list 281 220 1 1 1) 
+                    (list 281 364 1 1 1) (list 170 256 1 1 1) 
+                    (list 133 184 1 1 1) (list 133 364 1 1 1))))
 
 
 (send frame show #t)
+#|
+(define (QaTec aliTeam1 aliTeam2 numGen)
+  (cond
+  ((or (null? aliTeam1) (null? aliTeam2) (not (equal? (length aliTeam1) 3)) (not (equal? (length aliTeam2) 3)))
+    "Ingrese una alineacion correcta")
+  ((< numGen 0) "Ingrese un numero de generaciones mayor a 0")
+  ;(else
+    ;(define allGen (genetico aliTeam1 aliTeam2 numGen)))
+    ; hacer un metodo que tome todas las gen to mat y hace un newpos
+  )
+)|#
+
+; Unir las generaciones de cada equipo 
+(define (append-team-gen allGen1 allGen2)
+  (cond 
+    ((and (null? allGen1 ) (null? allGen2)) '())
+    (else
+     (append (list (list (car allGen1) (car allGen2))) (append-team-gen  (cdr allGen1)  (cdr allGen2)))
+    )
+  )
+)
+
+; traducir las generaciones a matriz
+
+(define (gen-to-mat allGen)
+  (cond
+    ((null? allGen) '())
+    (else
+      (append (list (append (coord-to-mat (listaPlana (cdaar allGen))) (coord-to-mat (listaPlana (cddar allGen))))) (gen-to-mat (cdr allGen)))
+    )
+  )
+)
+
+(define (listaPlana lista)
+  (cond 
+    ((null? lista) '())
+    (else
+      (append (car lista) (cadr lista) (caddr lista))
+
+    )
+  )
+)
+
+
+(define todasGen (genetico (list 4 4 2) (list 3 3 4) 3))
+
+(define grupo (append-team-gen (car todasGen) (car(cdr todasGen))))
+
 
 
 
